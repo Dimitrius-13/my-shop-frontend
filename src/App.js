@@ -13,7 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { IMaskInput } from "react-imask";
 import "./App.css";
 
-const API_URL = "http://localhost:1337";
+const API_URL = "https://myshop-cms.onrender.com";
 
 const CATEGORIES = [
   { id: "all", name: "Всі товари", icon: "fa-layer-group" },
