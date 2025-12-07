@@ -1346,156 +1346,204 @@ footer {
 }
 
 /* =========================================
-   АДАПТИВНІСТЬ (MOBILE STYLES)
+   АДАПТИВНІСТЬ V2 (КРАСИВА МОБІЛКА)
    ========================================= */
 
 @media (max-width: 992px) {
-  /* Ховаємо "швидкі категорії" з хедера на планшетах і менше */
-  .desktop-nav {
-    display: none;
-  }
+  .desktop-nav { display: none; }
 }
 
 @media (max-width: 768px) {
-  /* --- ХЕДЕР --- */
+  /* --- 1. ХЕДЕР (Лого і Кошик в ряд, Пошук під ними) --- */
   .header-content {
-    flex-wrap: wrap; /* Дозволяємо перенос елементів */
-    gap: 15px;
-    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    gap: 10px;
   }
 
   .logo {
-    font-size: 20px;
-    flex-grow: 1; /* Лого займає вільне місце зліва */
-  }
-  
-  .header-actions {
-    flex-shrink: 0; /* Кошик не стискається */
+    font-size: 22px; /* Трохи більший лого */
+    order: 1;
   }
 
-  /* Пошук падає на другий рядок */
+  .header-actions {
+    order: 2;
+  }
+  
+  .btn-text {
+    display: none; /* Ховаємо слово "Кошик", лишаємо тільки іконку */
+  }
+
+  /* Пошук на всю ширину (Жирний і зручний) */
   .search-bar-wrapper {
-    order: 3; /* Порядковий номер: після лого і кошика */
-    width: 100%; /* На всю ширину */
-    margin: 0;
+    order: 3;
+    width: 100%;
+    margin: 5px 0 0 0;
     max-width: none;
   }
   
   .search-bar input {
-    font-size: 16px; /* Щоб iPhone не зумив сторінку при вводі */
+    height: 44px; /* Стандарт iOS для тапу */
+    font-size: 16px;
+    border-radius: 8px 0 0 8px;
+    background: #f5f5f5; /* Трохи сірий фон, приємніше оку */
+    border: 1px solid #eee;
+  }
+  
+  .search-bar button {
+    width: 50px;
+    border-radius: 0 8px 8px 0;
   }
 
-  /* --- НИЖНЄ МЕНЮ (SUB-HEADER) --- */
+  /* --- 2. КАТАЛОГ І МЕНЮ --- */
   .sub-header {
-    top: -1px; /* Фікс щілини */
-  }
-  
-  .promo-text {
-    display: none; /* Ховаємо текст про доставку, бо не влізе */
-  }
-  
-  .catalog-wrapper {
-    width: 100%;
+    top: -1px;
+    padding: 5px 0;
   }
   
   .catalog-btn {
-    width: 100%; /* Кнопка на всю ширину */
+    width: 100%;
+    border-radius: 0; /* На всю ширину без скруглень */
     justify-content: center;
+    padding: 12px;
   }
   
-  .catalog-dropdown {
-    width: 100%; /* Випадайка теж на всю ширину */
-    position: fixed; /* Фіксуємо, щоб не їздила */
-    top: 110px; /* Підганяємо під висоту шапки */
-    left: 0;
-    right: 0;
-    max-height: 70vh;
-    overflow-y: auto;
-    border-radius: 0;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-  }
+  .promo-text { display: none; }
 
-  /* --- ГОЛОВНА: СІТКА ТОВАРІВ --- */
+  /* --- 3. СІТКА ТОВАРІВ (FIX КВАДРАТНОСТІ) --- */
   .products-grid {
     display: grid;
-    /* 2 колонки, мінімальна ширина картки 140px */
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 10px;
+    grid-template-columns: 1fr 1fr; /* Дві колонки */
+    gap: 12px; /* Більше повітря між картками */
+    padding: 10px;
   }
 
   .product-card {
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 260px; /* Мінімальна висота, щоб не були сплюснуті */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Легка тінь */
+    border: 1px solid #f0f0f0;
   }
 
+  /* Картинка товару */
   .img-container {
-    height: 120px; /* Менші картинки */
+    height: 140px; /* Фіксована висота */
+    margin-bottom: 10px;
   }
   
+  /* Інформація про товар */
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
   .card-info h3 {
-    font-size: 14px; /* Менший шрифт назви */
-    height: 36px;
+    font-size: 13px;
+    line-height: 1.4;
+    height: 38px; /* Рівно на 2 рядки тексту */
+    overflow: hidden;
     margin: 5px 0;
+    font-weight: 600;
+  }
+
+  .rating {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  /* Блок ціни та кнопки */
+  .price-block {
+    margin-top: auto; /* Притискаємо до низу */
+    flex-direction: column; /* Ціна зверху, кнопка знизу */
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .prices {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
   }
 
   .current-price {
     font-size: 16px;
   }
-  
-  .buy-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
+
+  .old-price {
+    font-size: 12px;
   }
 
-  /* --- ФІЛЬТРИ --- */
+  /* Кнопка купити - ШИРОКА */
+  .buy-btn {
+    position: static; /* Відміняємо абсолютне позиціонування */
+    width: 100%; /* На всю ширину картки */
+    height: 36px;
+    border-radius: 6px;
+    background-color: #00a046;
+    color: white;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .buy-btn i {
+    font-size: 16px; /* Іконка кошика */
+  }
+
+  /* Фільтри на мобільному */
   .section-header-row {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+    padding: 0 10px;
   }
   
   .filters-row {
     width: 100%;
-    justify-content: space-between;
+    flex-direction: column; /* Фільтри один під одним */
+    gap: 10px;
   }
   
   .filter-wrapper, .sort-wrapper {
-    flex: 1; /* Рівномірно розтягуємо */
-    font-size: 12px;
+    width: 100%;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+
+  /* --- СТОРІНКА ТОВАРУ (МОБІЛЬНА) --- */
+  .product-layout {
+    flex-direction: column;
   }
   
-  .filter-wrapper select, .sort-wrapper select {
-    width: 100%;
+  .product-image-large {
+    background: white;
+    padding: 20px;
   }
-
-  /* --- СТОРІНКА ТОВАРУ --- */
-  .product-layout {
-    flex-direction: column; /* Вертикально */
-    gap: 20px;
-  }
-
-  .product-image-large img {
-    max-height: 300px;
-  }
-
-  .product-info-full h1 {
-    font-size: 24px;
+  
+  .product-info-full {
+    padding: 0 15px;
   }
   
   .price-box {
-    flex-direction: column; /* Ціна і кнопка одна під одною */
-    align-items: stretch; /* Розтягнути на всю ширину */
-    text-align: center;
+    position: fixed; /* Приліпити кнопку купити знизу екрана */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    z-index: 100;
+    margin: 0;
+    border-radius: 15px 15px 0 0;
   }
   
-  .buy-btn-large {
-    width: 100%; /* Величезна кнопка "Купити" */
-    padding: 15px;
-  }
-
-  /* --- КОШИК (МОДАЛКА) --- */
-  .cart-modal {
-    width: 90%; /* Майже на весь екран */
-    max-width: none;
+  .product-page {
+    padding-bottom: 100px; /* Відступ, щоб контент не ховався за фіксованою кнопкою */
   }
 }
