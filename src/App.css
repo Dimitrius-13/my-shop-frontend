@@ -859,8 +859,8 @@ footer {
   padding: 10px 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
   position: sticky;
-  top: 60px; /* Висота основного хедера */
-  z-index: 90;
+  top: 0; /* Висота основного хедера */
+  z-index: 999;
 }
 
 .sub-header-content {
