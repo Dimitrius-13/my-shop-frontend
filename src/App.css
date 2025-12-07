@@ -1344,3 +1344,158 @@ footer {
   color: #00a046;
   font-size: 13px;
 }
+
+/* =========================================
+   АДАПТИВНІСТЬ (MOBILE STYLES)
+   ========================================= */
+
+@media (max-width: 992px) {
+  /* Ховаємо "швидкі категорії" з хедера на планшетах і менше */
+  .desktop-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /* --- ХЕДЕР --- */
+  .header-content {
+    flex-wrap: wrap; /* Дозволяємо перенос елементів */
+    gap: 15px;
+    padding: 10px;
+  }
+
+  .logo {
+    font-size: 20px;
+    flex-grow: 1; /* Лого займає вільне місце зліва */
+  }
+  
+  .header-actions {
+    flex-shrink: 0; /* Кошик не стискається */
+  }
+
+  /* Пошук падає на другий рядок */
+  .search-bar-wrapper {
+    order: 3; /* Порядковий номер: після лого і кошика */
+    width: 100%; /* На всю ширину */
+    margin: 0;
+    max-width: none;
+  }
+  
+  .search-bar input {
+    font-size: 16px; /* Щоб iPhone не зумив сторінку при вводі */
+  }
+
+  /* --- НИЖНЄ МЕНЮ (SUB-HEADER) --- */
+  .sub-header {
+    top: -1px; /* Фікс щілини */
+  }
+  
+  .promo-text {
+    display: none; /* Ховаємо текст про доставку, бо не влізе */
+  }
+  
+  .catalog-wrapper {
+    width: 100%;
+  }
+  
+  .catalog-btn {
+    width: 100%; /* Кнопка на всю ширину */
+    justify-content: center;
+  }
+  
+  .catalog-dropdown {
+    width: 100%; /* Випадайка теж на всю ширину */
+    position: fixed; /* Фіксуємо, щоб не їздила */
+    top: 110px; /* Підганяємо під висоту шапки */
+    left: 0;
+    right: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+
+  /* --- ГОЛОВНА: СІТКА ТОВАРІВ --- */
+  .products-grid {
+    display: grid;
+    /* 2 колонки, мінімальна ширина картки 140px */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px;
+  }
+
+  .product-card {
+    padding: 10px;
+  }
+
+  .img-container {
+    height: 120px; /* Менші картинки */
+  }
+  
+  .card-info h3 {
+    font-size: 14px; /* Менший шрифт назви */
+    height: 36px;
+    margin: 5px 0;
+  }
+
+  .current-price {
+    font-size: 16px;
+  }
+  
+  .buy-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  /* --- ФІЛЬТРИ --- */
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .filters-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .filter-wrapper, .sort-wrapper {
+    flex: 1; /* Рівномірно розтягуємо */
+    font-size: 12px;
+  }
+  
+  .filter-wrapper select, .sort-wrapper select {
+    width: 100%;
+  }
+
+  /* --- СТОРІНКА ТОВАРУ --- */
+  .product-layout {
+    flex-direction: column; /* Вертикально */
+    gap: 20px;
+  }
+
+  .product-image-large img {
+    max-height: 300px;
+  }
+
+  .product-info-full h1 {
+    font-size: 24px;
+  }
+  
+  .price-box {
+    flex-direction: column; /* Ціна і кнопка одна під одною */
+    align-items: stretch; /* Розтягнути на всю ширину */
+    text-align: center;
+  }
+  
+  .buy-btn-large {
+    width: 100%; /* Величезна кнопка "Купити" */
+    padding: 15px;
+  }
+
+  /* --- КОШИК (МОДАЛКА) --- */
+  .cart-modal {
+    width: 90%; /* Майже на весь екран */
+    max-width: none;
+  }
+}
