@@ -402,9 +402,10 @@ body {
   flex-direction: column;
 }
 .old-price {
-  font-size: 12px;
-  text-decoration: line-through;
-  color: #999;
+  text-decoration: line-through; /* Саме це перекреслює текст */
+  color: #a0a0a0; /* Робимо колір сірим, щоб не відволікав */
+  font-size: 0.9em;
+  margin-right: 8px;
 }
 .current-price {
   font-size: 20px;
@@ -622,6 +623,16 @@ footer {
   font-size: 36px;
   font-weight: bold;
   color: #333;
+}
+.old-price-large {
+  text-decoration: line-through;
+  color: #a0a0a0;
+  font-size: 1.2rem;
+  margin-right: 15px;
+  font-weight: normal;
+}
+.current-price.red {
+  color: #e31e24;
 }
 .buy-btn-large {
   background: #00a046;
