@@ -427,10 +427,22 @@ const ProductPage = ({ addToCart }) => {
     axios.get(`${API_URL}/api/products/${id}?populate=*`).then((res) => {
       const d = res.data.data;
       const a = d.attributes || d;
+      
+      // --- БЕЗПЕЧНА ЛОГІКА КАРТИНОК ---
       let img = null;
-      if (a.image?.url) img = API_URL + a.image.url;
-      else if (a.image?.data?.attributes?.url)
-        img = API_URL + a.image.data.attributes.url;
+      let rawUrl = null;
+
+      if (a.image && a.image.url) {
+          rawUrl = a.image.url;
+      } else if (a.image && a.image.data && a.image.data.attributes) {
+          rawUrl = a.image.data.attributes.url;
+      }
+
+      if (rawUrl) {
+          img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
+      }
+      // ---------------------------------
+
       setProduct({
         id: d.id || d.documentId,
         name: a.Name || a.name,
@@ -440,7 +452,7 @@ const ProductPage = ({ addToCart }) => {
         image: img,
         rating: a.Rating || a.rating,
         category: a.Category || a.category,
-        specs: a.specs || null, // ДОДАЛИ SPECS
+        specs: a.specs || null,
       });
     });
   }, [id]);
@@ -612,16 +624,27 @@ function App() {
     axios.get(`${API_URL}/api/products?populate=*`).then((res) => {
       const formatted = res.data.data.map((item) => {
         const d = item.attributes || item;
+        
+        // --- БЕЗПЕЧНА ЛОГІКА КАРТИНОК ---
         let img = null;
-        // Знаходимо "сире" посилання (воно може бути повним або відносним)
-        const rawUrl = d.image?.url || d.image?.data?.attributes?.url;
-
-        if (rawUrl) {
-          // Якщо починається з http — це Cloudinary, лишаємо як є.
-          // Якщо ні — це локальний файл, додаємо домен бекенду.
-          img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
+        
+        // 1. Спочатку пробуємо знайти "сире" посилання безпечно
+        let rawUrl = null;
+        
+        if (d.image && d.image.url) {
+            // Варіант, коли image - це прямий об'єкт
+            rawUrl = d.image.url;
+        } else if (d.image && d.image.data && d.image.data.attributes) {
+            // Варіант, коли image - це Strapi relation (стандарт)
+            rawUrl = d.image.data.attributes.url;
         }
-          img = API_URL + d.image.data.attributes.url;
+
+        // 2. Якщо посилання знайшли - обробляємо його
+        if (rawUrl) {
+            img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
+        }
+        // --- КІНЕЦЬ БЕЗПЕЧНОЇ ЛОГІКИ ---
+
         return {
           id: item.id,
           documentId: item.documentId || item.id,
@@ -629,9 +652,9 @@ function App() {
           price: d.Price || d.price,
           oldPrice: d.OldPrice || d.oldPrice,
           category: d.Category || d.category,
-          brand: d.brand || null, // Додали бренд
-          specs: d.specs || null, // Додали спеки
-          image: img,
+          brand: d.brand || null,
+          specs: d.specs || null,
+          image: img, // Тут тепер або посилання, або null (не впаде)
           isPromo: d.IsPromo || d.isPromo,
           rating: d.Rating || d.rating || 0,
         };
