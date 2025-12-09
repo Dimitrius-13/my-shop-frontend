@@ -620,49 +620,69 @@ function App() {
     return [...new Set(brands)]; // Унікальні
   }, [products]);
 
+  // App.js
+
   useEffect(() => {
-    axios.get(`${API_URL}/api/products?populate=*`).then((res) => {
-      const formatted = res.data.data.map((item) => {
-        const d = item.attributes || item;
-        
-        // --- БЕЗПЕЧНА ЛОГІКА КАРТИНОК ---
-        let img = null;
-        
-        // 1. Спочатку пробуємо знайти "сире" посилання безпечно
-        let rawUrl = null;
-        
-        if (d.image && d.image.url) {
-            // Варіант, коли image - це прямий об'єкт
-            rawUrl = d.image.url;
-        } else if (d.image && d.image.data && d.image.data.attributes) {
-            // Варіант, коли image - це Strapi relation (стандарт)
-            rawUrl = d.image.data.attributes.url;
-        }
+    // Створюємо функцію завантаження
+    const fetchProducts = () => {
+      axios.get(`${API_URL}/api/products?populate=*`)
+        .then((res) => {
+          // ЯКЩО УСПІХ:
+          const formatted = res.data.data.map((item) => {
+            const d = item.attributes || item;
+            
+            let img = null;
+            let rawUrl = null;
+            
+            if (d.image && d.image.url) {
+                rawUrl = d.image.url;
+            } else if (d.image && d.image.data && d.image.data.attributes) {
+                rawUrl = d.image.data.attributes.url;
+            }
 
-        // 2. Якщо посилання знайшли - обробляємо його
-        if (rawUrl) {
-            img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
-        }
-        // --- КІНЕЦЬ БЕЗПЕЧНОЇ ЛОГІКИ ---
+            if (rawUrl) {
+                img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
+            }
 
-        return {
-          id: item.id,
-          documentId: item.documentId || item.id,
-          name: d.Name || d.name,
-          price: d.Price || d.price,
-          oldPrice: d.OldPrice || d.oldPrice,
-          category: d.Category || d.category,
-          brand: d.brand || null,
-          specs: d.specs || null,
-          image: img, // Тут тепер або посилання, або null (не впаде)
-          isPromo: d.IsPromo || d.isPromo,
-          rating: d.Rating || d.rating || 0,
-        };
-      });
-      setProducts(formatted);
-      setLoading(false);
-    });
-  }, []);
+            return {
+              id: item.id,
+              documentId: item.documentId || item.id,
+              name: d.Name || d.name,
+              price: d.Price || d.price,
+              oldPrice: d.OldPrice || d.oldPrice,
+              category: d.Category || d.category,
+              brand: d.brand || null,
+              specs: d.specs || null,
+              image: img,
+              isPromo: d.IsPromo || d.isPromo,
+              rating: d.Rating || d.rating || 0,
+            };
+          });
+          
+          setProducts(formatted);
+          setLoading(false); // Прибираємо скелетон
+          
+          // Можна показати повідомлення, що ми підключились
+          // toast.success("Каталог оновлено!"); 
+        })
+        .catch((err) => {
+          // ЯКЩО ПОМИЛКА (Сервер спить):
+          console.log("Server is sleeping... retrying in 3s");
+          
+          // Якщо це перша спроба і ми ще чекаємо - показуємо тост
+          if (loading) {
+             // Можна розкоментувати, якщо хочеш бачити повідомлення
+             // toast.info("Сервер прокидається, зачекайте...", { autoClose: 2000 });
+          }
+
+          // Пробуємо знову через 3 секунди (рекурсія)
+          setTimeout(fetchProducts, 3000);
+        });
+    };
+
+    // Запускаємо перший раз
+    fetchProducts();
+  }, []); // Порожній масив = запуск тільки при старті
 
   // ЄДИНА ЛОГІКА ФІЛЬТРАЦІЇ
   useEffect(() => {
