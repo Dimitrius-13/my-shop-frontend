@@ -613,8 +613,14 @@ function App() {
       const formatted = res.data.data.map((item) => {
         const d = item.attributes || item;
         let img = null;
-        if (d.image?.url) img = API_URL + d.image.url;
-        else if (d.image?.data?.attributes?.url)
+        // Знаходимо "сире" посилання (воно може бути повним або відносним)
+        const rawUrl = d.image?.url || d.image?.data?.attributes?.url;
+
+        if (rawUrl) {
+          // Якщо починається з http — це Cloudinary, лишаємо як є.
+          // Якщо ні — це локальний файл, додаємо домен бекенду.
+          img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
+        }
           img = API_URL + d.image.data.attributes.url;
         return {
           id: item.id,
