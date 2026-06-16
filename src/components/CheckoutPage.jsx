@@ -29,7 +29,7 @@ const CheckoutPage = ({ cart, setCart, user }) => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const cityRef = useRef(null);
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const orderDetails = cart.map((i) => `${i.name} (x${i.quantity})`).join(", ");
 
   // Слідкуємо за кліками поза дропдауном міст
   useEffect(() => {
