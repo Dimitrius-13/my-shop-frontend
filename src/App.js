@@ -12,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IMaskInput } from "react-imask";
 import "./App.css";
+
 import ProductList from "./components/ProductList";
 import AuthModal from "./components/AuthModal";
 import ProfilePage from "./components/ProfilePage";
@@ -48,8 +49,6 @@ const renderDescription = (desc) => {
   }
   return "";
 };
-
-// --- КОМПОНЕНТИ ---
 
 const Header = ({ cartCount, openCart, products, onLogoClick, onSearch, user, openAuth }) => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -179,12 +178,14 @@ const Header = ({ cartCount, openCart, products, onLogoClick, onSearch, user, op
         </div>
 
         <div className="header-actions">
-            <div className="action-btn" onClick={() => user ? navigate('/profile') : openAuth()}>
-    <div className="icon-wrapper">
-      <i className="fas fa-user"></i>
-    </div>
-    <span className="btn-text">{user ? user.username : "Увійти"}</span>
-  </div>
+          {/* АВТОРИЗАЦІЯ / ПРОФІЛЬ */}
+          <div className="action-btn" onClick={() => user ? navigate('/profile') : openAuth()}>
+            <div className="icon-wrapper">
+              <i className="fas fa-user"></i>
+            </div>
+            <span className="btn-text">{user ? user.username : "Увійти"}</span>
+          </div>
+
           <div className="action-btn" onClick={openCart}>
             <div className="icon-wrapper">
               <i className="fas fa-shopping-cart"></i>
@@ -241,21 +242,6 @@ const SubHeader = ({ onSelectCategory }) => {
   );
 };
 
-const SkeletonLoader = () => (
-  <div className="products-grid">
-    {Array(8)
-      .fill(0)
-      .map((_, i) => (
-        <div key={i} className="skeleton-card">
-          <div className="skeleton skeleton-img"></div>
-          <div className="skeleton skeleton-title"></div>
-          <div className="skeleton skeleton-price"></div>
-          <div className="skeleton skeleton-btn"></div>
-        </div>
-      ))}
-  </div>
-);
-
 const HomePage = ({
   products,
   addToCart,
@@ -269,12 +255,9 @@ const HomePage = ({
 }) => {
   const getSortedProducts = () => {
     const sorted = [...products];
-    if (sortOption === "price_asc")
-      return sorted.sort((a, b) => a.price - b.price);
-    if (sortOption === "price_desc")
-      return sorted.sort((a, b) => b.price - a.price);
-    if (sortOption === "rating")
-      return sorted.sort((a, b) => b.rating - a.rating);
+    if (sortOption === "price_asc") return sorted.sort((a, b) => a.price - b.price);
+    if (sortOption === "price_desc") return sorted.sort((a, b) => b.price - a.price);
+    if (sortOption === "rating") return sorted.sort((a, b) => b.rating - a.rating);
     return sorted;
   };
 
@@ -290,12 +273,10 @@ const HomePage = ({
         <div className="banner-decor"></div>
       </div>
 
-      {/* ПАНЕЛЬ ФІЛЬТРІВ */}
       <div className="section-header-row">
         <h2 className="section-title">{categoryTitle}</h2>
 
         <div className="filters-row">
-          {/* ФІЛЬТР ПО БРЕНДУ */}
           <div className="filter-wrapper">
             <label>Бренд:</label>
             <select
@@ -311,7 +292,6 @@ const HomePage = ({
             </select>
           </div>
 
-          {/* СОРТУВАННЯ */}
           <div className="sort-wrapper">
             <label>Сортування:</label>
             <select
@@ -327,7 +307,6 @@ const HomePage = ({
         </div>
       </div>
 
-      {/* ВИКЛИК КОМПОНЕНТА СПИСКУ ТОВАРІВ ЗАМІСТЬ МОНОЛІТУ */}
       <ProductList
         products={displayProducts}
         loading={loading}
@@ -352,7 +331,6 @@ const Breadcrumbs = ({ categoryName, productName }) => (
   </div>
 );
 
-// СТОРІНКА ТОВАРУ (З ТАБЛИЦЕЮ SPECS)
 const ProductPage = ({ addToCart }) => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -362,7 +340,6 @@ const ProductPage = ({ addToCart }) => {
       const d = res.data.data;
       const a = d.attributes || d;
       
-      // --- БЕЗПЕЧНА ЛОГІКА КАРТИНОК ---
       let img = null;
       let rawUrl = null;
 
@@ -375,7 +352,6 @@ const ProductPage = ({ addToCart }) => {
       if (rawUrl) {
           img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
       }
-      // ---------------------------------
 
       setProduct({
         id: d.id || d.documentId,
@@ -393,8 +369,8 @@ const ProductPage = ({ addToCart }) => {
 
   if (!product)
     return (
-      <div className="container" style={{ padding: "40px" }}>
-        <SkeletonLoader />
+      <div className="container" style={{ padding: "40px", textAlign: "center" }}>
+        <h3>Завантаження...</h3>
       </div>
     );
 
@@ -403,7 +379,7 @@ const ProductPage = ({ addToCart }) => {
       <Breadcrumbs categoryName={product.category} productName={product.name} />
       <div className="product-layout">
         <div className="product-image-large">
-          <img src={product.image} alt="" />
+          <img src={product.image || "https://placehold.co/600"} alt="" />
         </div>
         <div className="product-info-full">
           <h1>{product.name}</h1>
@@ -426,7 +402,6 @@ const ProductPage = ({ addToCart }) => {
             </button>
           </div>
 
-          {/* ТАБЛИЦЯ ХАРАКТЕРИСТИК (SPECS) */}
           {product.specs && (
             <div className="specs-table-container">
               <h3>Характеристики</h3>
@@ -453,11 +428,12 @@ const ProductPage = ({ addToCart }) => {
   );
 };
 
-const CartModal = ({ cart, closeCart, removeItem, submitOrder }) => {
+const CartModal = ({ cart, closeCart, removeItem, submitOrder, user }) => {
   const total = cart.reduce((sum, item) => sum + item.price, 0);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(user ? user.username : "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const isFormValid = name.trim() !== "" && phone.length === 19;
+
   return (
     <div className="modal-overlay" onClick={closeCart}>
       <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
@@ -470,7 +446,7 @@ const CartModal = ({ cart, closeCart, removeItem, submitOrder }) => {
         <div className="cart-body">
           {cart.map((i, idx) => (
             <div key={idx} className="cart-item-row">
-              <img src={i.image} width="40" alt="" />
+              <img src={i.image || "https://placehold.co/40"} width="40" alt="" />
               <div style={{ flex: 1, marginLeft: "10px" }}>
                 <div style={{ fontSize: "14px" }}>{i.name}</div>
                 <b style={{ fontSize: "14px" }}>{i.price} ₴</b>
@@ -523,7 +499,6 @@ const CartModal = ({ cart, closeCart, removeItem, submitOrder }) => {
   );
 };
 
-// ... NotFoundPage ...
 const NotFoundPage = () => (
   <div className="container page-404">
     <div className="content-404">
@@ -535,38 +510,33 @@ const NotFoundPage = () => (
   </div>
 );
 
-// ГОЛОВНИЙ APP
 function App() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedBrand, setSelectedBrand] = useState("all"); // НОВЕ: БРЕНД
+  const [selectedBrand, setSelectedBrand] = useState("all");
   const [sortOption, setSortOption] = useState("default");
-  const [searchTerm, setSearchTerm] = useState(""); // Глобальний пошук
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [cart, setCart] = useState([]);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-const [user, setUser] = useState(() => {
-  const savedUser = localStorage.getItem("user");
-  return savedUser ? JSON.parse(savedUser) : null;
-});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Отримуємо список унікальних брендів з поточних продуктів
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const availableBrands = useMemo(() => {
-    const brands = products.map((p) => p.brand).filter(Boolean); // Тільки не пусті
-    return [...new Set(brands)]; // Унікальні
+    const brands = products.map((p) => p.brand).filter(Boolean);
+    return [...new Set(brands)];
   }, [products]);
 
-  // App.js
-
   useEffect(() => {
-    // Створюємо функцію завантаження
     const fetchProducts = () => {
       axios.get(`${API_URL}/api/products?populate=*`)
         .then((res) => {
-          // ЯКЩО УСПІХ:
           const formatted = res.data.data.map((item) => {
             const d = item.attributes || item;
             
@@ -599,47 +569,31 @@ const [user, setUser] = useState(() => {
           });
           
           setProducts(formatted);
-          setLoading(false); // Прибираємо скелетон
-          
-          // Можна показати повідомлення, що ми підключились
-          // toast.success("Каталог оновлено!"); 
+          setLoading(false);
         })
         .catch((err) => {
-          // ЯКЩО ПОМИЛКА (Сервер спить):
           console.log("Server is sleeping... retrying in 3s");
-          
-          // Якщо це перша спроба і ми ще чекаємо - показуємо тост
-          if (loading) {
-             // Можна розкоментувати, якщо хочеш бачити повідомлення
-             // toast.info("Сервер прокидається, зачекайте...", { autoClose: 2000 });
-          }
-
-          // Пробуємо знову через 3 секунди (рекурсія)
           setTimeout(fetchProducts, 3000);
         });
     };
 
-    // Запускаємо перший раз
     fetchProducts();
-  }, []); // Порожній масив = запуск тільки при старті
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // ЄДИНА ЛОГІКА ФІЛЬТРАЦІЇ
   useEffect(() => {
     let temp = products;
 
-    // 1. Пошук
     if (searchTerm) {
       temp = temp.filter((p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     } else {
-      // 2. Категорія (тільки якщо немає пошуку)
       if (selectedCategory !== "all") {
         temp = temp.filter((p) => p.category === selectedCategory);
       }
     }
 
-    // 3. Бренд (завжди)
     if (selectedBrand !== "all") {
       temp = temp.filter((p) => p.brand === selectedBrand);
     }
@@ -648,9 +602,9 @@ const [user, setUser] = useState(() => {
   }, [products, selectedCategory, selectedBrand, searchTerm]);
 
   const handleSelectCategory = (categoryId) => {
-    setSearchTerm(""); // Скидаємо пошук
+    setSearchTerm("");
     setSelectedCategory(categoryId);
-    setSelectedBrand("all"); // Скидаємо бренд при зміні категорії
+    setSelectedBrand("all");
     setSortOption("default");
   };
 
@@ -666,7 +620,6 @@ const [user, setUser] = useState(() => {
     return cat ? cat.name : "Каталог";
   };
 
-  // ... (addToCart, removeItem, submitOrder ті самі) ...
   const addToCart = (p) => {
     setCart([...cart, p]);
     toast.success(`${p.name} додано!`, {
@@ -674,10 +627,12 @@ const [user, setUser] = useState(() => {
       autoClose: 2000,
     });
   };
+
   const removeItem = (idx) => {
     setCart(cart.filter((_, i) => i !== idx));
     toast.info("Видалено", { position: "bottom-right", autoClose: 1000 });
   };
+
   const submitOrder = async (n, p) => {
     try {
       const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -728,13 +683,23 @@ const [user, setUser] = useState(() => {
               />
             }
           />
-          <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} />} />
           <Route
             path="/product/:id"
             element={<ProductPage addToCart={addToCart} />}
           />
+          <Route 
+            path="/profile" 
+            element={<ProfilePage user={user} setUser={setUser} />} 
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+
+        {isAuthOpen && (
+          <AuthModal 
+            closeAuth={() => setIsAuthOpen(false)} 
+            onLoginSuccess={(userData) => setUser(userData)} 
+          />
+        )}
 
         {isCartOpen && (
           <CartModal
@@ -742,14 +707,9 @@ const [user, setUser] = useState(() => {
             closeCart={() => setIsCartOpen(false)}
             removeItem={removeItem}
             submitOrder={submitOrder}
+            user={user}
           />
         )}
-          {isAuthOpen && (
-  <AuthModal 
-    closeAuth={() => setIsAuthOpen(false)} 
-    onLoginSuccess={(userData) => setUser(userData)} 
-  />
-)}
         <ToastContainer />
       </div>
     </Router>
