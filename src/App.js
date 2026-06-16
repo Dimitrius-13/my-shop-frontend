@@ -335,24 +335,15 @@ const Breadcrumbs = ({ categoryName, productName }) => (
 const ProductPage = ({ addToCart }) => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1); // Додали локальний стейт кількості
 
   useEffect(() => {
     axios.get(`${API_URL}/api/products/${id}?populate=*`).then((res) => {
       const d = res.data.data;
       const a = d.attributes || d;
-      
       let img = null;
-      let rawUrl = null;
-
-      if (a.image && a.image.url) {
-          rawUrl = a.image.url;
-      } else if (a.image && a.image.data && a.image.data.attributes) {
-          rawUrl = a.image.data.attributes.url;
-      }
-
-      if (rawUrl) {
-          img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
-      }
+      let rawUrl = a.image?.url || a.image?.data?.attributes?.url;
+      if (rawUrl) img = rawUrl.startsWith('http') ? rawUrl : API_URL + rawUrl;
 
       setProduct({
         id: d.id || d.documentId,
@@ -368,12 +359,7 @@ const ProductPage = ({ addToCart }) => {
     });
   }, [id]);
 
-  if (!product)
-    return (
-      <div className="container" style={{ padding: "40px", textAlign: "center" }}>
-        <h3>Завантаження...</h3>
-      </div>
-    );
+  if (!product) return <div className="container" style={{ padding: "40px", textAlign: "center" }}><h3>Завантаження...</h3></div>;
 
   return (
     <div className="container product-page">
@@ -385,19 +371,31 @@ const ProductPage = ({ addToCart }) => {
         <div className="product-info-full">
           <h1>{product.name}</h1>
           <div className="rating">
-            <i className="fas fa-star filled" style={{ color: "#ffbf00" }}></i>{" "}
-            {product.rating}
+            <i className="fas fa-star filled" style={{ color: "#ffbf00" }}></i> {product.rating}
           </div>
-          <div className="price-box">
+          
+          <div className="price-box" style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "center" }}>
             <div className="prices-large">
-              {product.oldPrice && (
-                <span className="old-price-large">{product.oldPrice} ₴</span>
-              )}
+              {product.oldPrice && <span className="old-price-large">{product.oldPrice} ₴</span>}
               <div className="big-price">{product.price} ₴</div>
             </div>
+            
+            {/* БЛОК ВИБОРУ КІЛЬКОСТІ */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#f5f5f5", padding: "5px", borderRadius: "8px" }}>
+              <button 
+                onClick={() => setQuantity(q => Math.max(1, q - 1))} 
+                style={{ border: "none", background: "#fff", width: "35px", height: "35px", borderRadius: "6px", cursor: "pointer", fontSize: "18px", fontWeight: "bold" }}
+              >-</button>
+              <span style={{ fontWeight: "bold", minWidth: "25px", textAlign: "center", fontSize: "16px" }}>{quantity}</span>
+              <button 
+                onClick={() => setQuantity(q => q + 1)} 
+                style={{ border: "none", background: "#fff", width: "35px", height: "35px", borderRadius: "6px", cursor: "pointer", fontSize: "18px", fontWeight: "bold" }}
+              >+</button>
+            </div>
+
             <button
               className="buy-btn-large"
-              onClick={() => addToCart(product)}
+              onClick={() => addToCart(product, quantity)}
             >
               Купити
             </button>
@@ -550,9 +548,22 @@ function App() {
     return cat ? cat.name : "Каталог";
   };
 
-  const addToCart = (p) => {
-    setCart([...cart, p]);
-    toast.success(`${p.name} додано!`, {
+  const addToCart = (p, quantity = 1) => {
+    setCart((prevCart) => {
+      // Шукаємо, чи є вже такий товар у кошику
+      const existingIndex = prevCart.findIndex((item) => item.id === p.id);
+      
+      if (existingIndex !== -1) {
+        // Якщо є — плюсуємо кількість
+        const newCart = [...prevCart];
+        newCart[existingIndex].quantity += quantity;
+        return newCart;
+      }
+      // Якщо немає — додаємо новий об'єкт з полем quantity
+      return [...prevCart, { ...p, quantity }];
+    });
+
+    toast.success(`${p.name} (${quantity} шт.) додано!`, {
       position: "bottom-right",
       autoClose: 2000,
     });
