@@ -51,7 +51,7 @@ const renderDescription = (desc) => {
 
 // --- КОМПОНЕНТИ ---
 
-const Header = ({ cartCount, openCart, products, onLogoClick, onSearch }) => {
+const Header = ({ cartCount, openCart, products, onLogoClick, onSearch, user, openAuth }) => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -706,6 +706,8 @@ const [user, setUser] = useState(() => {
           products={products}
           onLogoClick={() => handleSelectCategory("all")}
           onSearch={handleSearch}
+          user={user}
+          openAuth={() => setIsAuthOpen(true)}
         />
         <SubHeader onSelectCategory={handleSelectCategory} />
 
