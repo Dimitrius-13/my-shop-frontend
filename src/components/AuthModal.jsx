@@ -96,7 +96,7 @@ const AuthModal = ({ closeAuth, onLoginSuccess }) => {
             style={{ textAlign: "center", marginTop: "15px", cursor: "pointer", color: "#007bff" }} 
             onClick={() => setIsLogin(!isLogin)}
           >
-            {isLogin ? "Вже є акаунт? Увійти" : "Немає акаунту? Створити"}
+            {isLogin ? "Немає акаунту? Створити" : "Вже є акаунт? Увійти"}
           </p>
         </div>
       </div>
