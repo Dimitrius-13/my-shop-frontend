@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { IMaskInput } from "react-imask"; // Беремо маску для телефону
+import { IMaskInput } from "react-imask";
 
 const API_URL = "https://myshop-cms.onrender.com";
 
@@ -17,26 +17,40 @@ const AuthModal = ({ closeAuth, onLoginSuccess }) => {
     e.preventDefault();
     try {
       const endpoint = isLogin ? "/api/auth/local" : "/api/auth/local/register";
+      
+      // КРОК 1: Відправляємо тільки те, що дозволяє Strapi
       const payload = isLogin
         ? { identifier: formData.email, password: formData.password }
-        : { 
-            username: formData.username, 
-            email: formData.email, 
-            password: formData.password,
-            phone: formData.phone // Передаємо телефон
-          };
+        : { username: formData.username, email: formData.email, password: formData.password };
 
       const res = await axios.post(`${API_URL}${endpoint}`, payload);
+      const token = res.data.jwt;
+      let userData = res.data.user;
+
+      // КРОК 2: Якщо це реєстрація і введений телефон — одразу оновлюємо юзера
+      if (!isLogin && formData.phone) {
+        try {
+          const updateRes = await axios.put(
+            `${API_URL}/api/users/${userData.id}`,
+            { phone: formData.phone },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          userData = updateRes.data; // Перезаписуємо юзера даними з телефоном
+        } catch (phoneErr) {
+          console.error("Телефон не зберігся, але акаунт створено", phoneErr);
+        }
+      }
       
-      localStorage.setItem("jwt", res.data.jwt);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("jwt", token);
+      localStorage.setItem("user", JSON.stringify(userData));
       
       toast.success(isLogin ? "Успішний вхід!" : "Реєстрація успішна!");
-      onLoginSuccess(res.data.user);
+      onLoginSuccess(userData);
       closeAuth();
     } catch (error) {
       console.error(error);
-      toast.error("Помилка! Перевірте дані.");
+      const errorMsg = error.response?.data?.error?.message || "Перевірте дані.";
+      toast.error(`Помилка! ${errorMsg}`);
     }
   };
 
@@ -82,7 +96,7 @@ const AuthModal = ({ closeAuth, onLoginSuccess }) => {
             style={{ textAlign: "center", marginTop: "15px", cursor: "pointer", color: "#007bff" }} 
             onClick={() => setIsLogin(!isLogin)}
           >
-            {isLogin ? "Немає акаунту? Створити" : "Вже є акаунт? Увійти"}
+            {isLogin ? "Вже є акаунт? Увійти" : "Немає акаунту? Створити"}
           </p>
         </div>
       </div>
