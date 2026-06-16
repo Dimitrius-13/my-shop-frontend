@@ -10,12 +10,13 @@ import {
 } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { IMaskInput } from "react-imask";
 import "./App.css";
 
 import ProductList from "./components/ProductList";
 import AuthModal from "./components/AuthModal";
 import ProfilePage from "./components/ProfilePage";
+import CartModal from "./components/CartModal";
+import CheckoutPage from "./components/CheckoutPage";
 
 const API_URL = "https://myshop-cms.onrender.com";
 
@@ -428,77 +429,6 @@ const ProductPage = ({ addToCart }) => {
   );
 };
 
-const CartModal = ({ cart, closeCart, removeItem, submitOrder, user }) => {
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
-  const [name, setName] = useState(user ? user.username : "");
-  const [phone, setPhone] = useState(user?.phone || "");
-  const isFormValid = name.trim() !== "" && phone.length === 19;
-
-  return (
-    <div className="modal-overlay" onClick={closeCart}>
-      <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="cart-header">
-          <h2>Кошик</h2>
-          <span className="close-btn" onClick={closeCart}>
-            ×
-          </span>
-        </div>
-        <div className="cart-body">
-          {cart.map((i, idx) => (
-            <div key={idx} className="cart-item-row">
-              <img src={i.image || "https://placehold.co/40"} width="40" alt="" />
-              <div style={{ flex: 1, marginLeft: "10px" }}>
-                <div style={{ fontSize: "14px" }}>{i.name}</div>
-                <b style={{ fontSize: "14px" }}>{i.price} ₴</b>
-              </div>
-              <span className="del" onClick={() => removeItem(idx)}>
-                🗑️
-              </span>
-            </div>
-          ))}
-          {cart.length === 0 && (
-            <div className="empty-state">😕 Кошик порожній</div>
-          )}
-        </div>
-        {cart.length > 0 && (
-          <div className="cart-footer">
-            <div className="total-row">Разом: {total} ₴</div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitOrder(name, phone);
-              }}
-            >
-              <label>Ваше ім'я</label>
-              <input
-                placeholder="Введіть ім'я"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="modal-input"
-              />
-              <label>Номер телефону</label>
-              <IMaskInput
-                mask="+{38} (000) 000-00-00"
-                radix="."
-                value={phone}
-                unmask={false}
-                onAccept={(value) => setPhone(value)}
-                placeholder="+38 (0__) ___-__-__"
-                className="modal-input"
-                required
-              />
-              <button className="checkout-btn" disabled={!isFormValid}>
-                {isFormValid ? "ПІДТВЕРДИТИ ЗАМОВЛЕННЯ" : "Заповніть дані"}
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 const NotFoundPage = () => (
   <div className="container page-404">
     <div className="content-404">
@@ -633,25 +563,6 @@ function App() {
     toast.info("Видалено", { position: "bottom-right", autoClose: 1000 });
   };
 
-  const submitOrder = async (n, p) => {
-    try {
-      const total = cart.reduce((sum, item) => sum + item.price, 0);
-      const orderDetails = cart.map((i) => `${i.name}`).join(", ");
-      await axios.post(`${API_URL}/api/orders`, {
-        data: { clientName: n, clientPhone: p, total, orderDetails },
-      });
-      toast.success("✅ Замовлення прийнято!", {
-        position: "top-center",
-        autoClose: 5000,
-      });
-      setCart([]);
-      setIsCartOpen(false);
-    } catch (e) {
-      console.error(e);
-      toast.error("Помилка замовлення!");
-    }
-  };
-
   return (
     <Router>
       <div className="app">
@@ -691,6 +602,10 @@ function App() {
             path="/profile" 
             element={<ProfilePage user={user} setUser={setUser} />} 
           />
+          <Route 
+            path="/checkout" 
+            element={<CheckoutPage cart={cart} setCart={setCart} user={user} />} 
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
 
@@ -706,8 +621,6 @@ function App() {
             cart={cart}
             closeCart={() => setIsCartOpen(false)}
             removeItem={removeItem}
-            submitOrder={submitOrder}
-            user={user}
           />
         )}
         <ToastContainer />
