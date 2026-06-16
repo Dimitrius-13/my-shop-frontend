@@ -5,9 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const API_URL = "https://myshop-cms.onrender.com";
-
-// ВСТАВ СВІЙ КЛЮЧ З КАБІНЕТУ НП ОСЬ ТУТ:
-const NP_API_KEY = "65317b2f4ccbe2131f035c5d00030538";
+const NP_API_KEY = "65317b2f4ccbe2131f035c5d00030538"; 
 const NP_API_URL = "https://api.novaposhta.ua/v2.0/json/";
 
 const CheckoutPage = ({ cart, setCart, user }) => {
@@ -16,10 +14,9 @@ const CheckoutPage = ({ cart, setCart, user }) => {
   const [name, setName] = useState(user ? user.username : "");
   const [phone, setPhone] = useState(user?.phone || "");
   
-  // Логіка Нової Пошти
   const [cityInput, setCityInput] = useState("");
   const [filteredCities, setFilteredCities] = useState([]);
-  const [selectedCity, setSelectedCity] = useState(null); // Тепер тут об'єкт { Description, Ref }
+  const [selectedCity, setSelectedCity] = useState(null);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [isSearchingCity, setIsSearchingCity] = useState(false);
   
@@ -29,9 +26,10 @@ const CheckoutPage = ({ cart, setCart, user }) => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const cityRef = useRef(null);
-  const orderDetails = cart.map((i) => `${i.name} (x${i.quantity})`).join(", ");
 
-  // Слідкуємо за кліками поза дропдауном міст
+  // Глобальна змінна суми для всього компонента
+  const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (cityRef.current && !cityRef.current.contains(e.target)) {
@@ -42,7 +40,6 @@ const CheckoutPage = ({ cart, setCart, user }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Розумний пошук міст із затримкою (Debounce)
   useEffect(() => {
     if (cityInput.trim().length >= 2 && !selectedCity) {
       const delayDebounceFn = setTimeout(async () => {
@@ -66,7 +63,7 @@ const CheckoutPage = ({ cart, setCart, user }) => {
         } finally {
           setIsSearchingCity(false);
         }
-      }, 400); // 400мс затримки, щоб не спамити запитами
+      }, 400);
 
       return () => clearTimeout(delayDebounceFn);
     } else {
@@ -75,7 +72,6 @@ const CheckoutPage = ({ cart, setCart, user }) => {
     }
   }, [cityInput, selectedCity]);
 
-  // Обробник ручного вводу (якщо юзер передумав і стирає місто)
   const handleCityChange = (e) => {
     setCityInput(e.target.value);
     setSelectedCity(null);
@@ -83,7 +79,6 @@ const CheckoutPage = ({ cart, setCart, user }) => {
     setWarehouses([]);
   };
 
-  // Вибір міста і завантаження відділень
   const handleCitySelect = async (cityObj) => {
     setCityInput(cityObj.Description);
     setSelectedCity(cityObj);
@@ -98,7 +93,7 @@ const CheckoutPage = ({ cart, setCart, user }) => {
         calledMethod: "getWarehouses",
         methodProperties: {
           CityRef: cityObj.Ref,
-          Limit: "200" // Ліміт, щоб не тягнути тисячі відділень в міліонниках
+          Limit: "200"
         }
       });
       if (res.data.success) {
@@ -117,8 +112,8 @@ const CheckoutPage = ({ cart, setCart, user }) => {
     setIsSubmitting(true);
 
     try {
-      const orderDetails = cart.map((i) => `${i.name}`).join(", ");
-      const fullAddress = `Нова Пошта, м. ${selectedCity.Description}, ${warehouse}`;
+      const orderDetails = cart.map((i) => `${i.name} (x${i.quantity || 1})`).join(", ");
+      const fullAddress = `м. ${selectedCity.Description}, ${warehouse}`;
 
       await axios.post(`${API_URL}/api/orders`, {
         data: { 
@@ -252,13 +247,15 @@ const CheckoutPage = ({ cart, setCart, user }) => {
           <h3>Ваше замовлення</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "15px", maxHeight: "400px", overflowY: "auto" }}>
             {cart.map((item, idx) => (
-              <div key={idx} style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+              <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
                 <img src={item.image || "https://placehold.co/50"} width="50" alt="" style={{ borderRadius: "6px" }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "14px", fontWeight: "500" }}>{item.name}</div>
                   <div style={{ fontSize: "13px", color: "#666" }}>Категорія: {item.category}</div>
                 </div>
-                <b style={{ fontSize: "15px", whiteSpace: "nowrap" }}>{item.price} ₴</b>
+                <b style={{ fontSize: "15px", whiteSpace: "nowrap" }}>
+                  {item.price} ₴ <span style={{ color: "#888", fontWeight: "normal", fontSize: "13px" }}>x {item.quantity || 1}</span>
+                </b>
               </div>
             ))}
           </div>
