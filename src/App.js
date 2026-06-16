@@ -248,10 +248,6 @@ const SkeletonLoader = () => (
   </div>
 );
 
-// ГОЛОВНА СТОРІНКА (З ФІЛЬТРАМИ БРЕНДІВ)
-import React from "react";
-import ProductList from "./components/ProductList"; // Переконайся, що шлях правильний!
-
 const HomePage = ({
   products,
   addToCart,
