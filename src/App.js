@@ -13,6 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { IMaskInput } from "react-imask";
 import "./App.css";
 import ProductList from "./components/ProductList";
+import AuthModal from "./components/AuthModal";
+import ProfilePage from "./components/ProfilePage";
 
 const API_URL = "https://myshop-cms.onrender.com";
 
@@ -177,6 +179,12 @@ const Header = ({ cartCount, openCart, products, onLogoClick, onSearch }) => {
         </div>
 
         <div className="header-actions">
+            <div className="action-btn" onClick={() => user ? navigate('/profile') : openAuth()}>
+    <div className="icon-wrapper">
+      <i className="fas fa-user"></i>
+    </div>
+    <span className="btn-text">{user ? user.username : "Увійти"}</span>
+  </div>
           <div className="action-btn" onClick={openCart}>
             <div className="icon-wrapper">
               <i className="fas fa-shopping-cart"></i>
@@ -537,6 +545,11 @@ function App() {
   const [searchTerm, setSearchTerm] = useState(""); // Глобальний пошук
 
   const [cart, setCart] = useState([]);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+const [user, setUser] = useState(() => {
+  const savedUser = localStorage.getItem("user");
+  return savedUser ? JSON.parse(savedUser) : null;
+});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -713,6 +726,7 @@ function App() {
               />
             }
           />
+          <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} />} />
           <Route
             path="/product/:id"
             element={<ProductPage addToCart={addToCart} />}
@@ -728,6 +742,12 @@ function App() {
             submitOrder={submitOrder}
           />
         )}
+          {isAuthOpen && (
+  <AuthModal 
+    closeAuth={() => setIsAuthOpen(false)} 
+    onLoginSuccess={(userData) => setUser(userData)} 
+  />
+)}
         <ToastContainer />
       </div>
     </Router>
