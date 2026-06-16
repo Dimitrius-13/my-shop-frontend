@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const CartModal = ({ cart, closeCart, removeItem }) => {
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  // Тепер множимо ціну на кількість
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const navigate = useNavigate();
 
   const handleProceedToCheckout = () => {
@@ -23,14 +24,15 @@ const CartModal = ({ cart, closeCart, removeItem }) => {
               <img src={i.image || "https://placehold.co/40"} width="40" alt="" />
               <div style={{ flex: 1, marginLeft: "10px" }}>
                 <div style={{ fontSize: "14px" }}>{i.name}</div>
-                <b style={{ fontSize: "14px" }}>{i.price} ₴</b>
+                {/* Виводимо кількість */}
+                <b style={{ fontSize: "14px" }}>
+                  {i.price} ₴ <span style={{ color: "#888", fontWeight: "normal" }}>x {i.quantity} шт.</span>
+                </b>
               </div>
               <span className="del" onClick={() => removeItem(idx)}>🗑️</span>
             </div>
           ))}
-          {cart.length === 0 && (
-            <div className="empty-state">😕 Кошик порожній</div>
-          )}
+          {cart.length === 0 && <div className="empty-state">😕 Кошик порожній</div>}
         </div>
         {cart.length > 0 && (
           <div className="cart-footer">
