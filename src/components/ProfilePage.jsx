@@ -177,9 +177,40 @@ const ProfilePage = ({ user, setUser }) => {
                   </div>
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "15px", paddingTop: "15px", borderTop: "1px dashed #ddd" }}>
-                    <span style={{ padding: "6px 14px", background: "#e8f5e9", color: "#2e7d32", borderRadius: "20px", fontSize: "12px", fontWeight: "bold" }}>
-                      <i className="fas fa-check-circle" style={{ marginRight: "5px" }}></i> Оформлено
-                    </span>
+                    {(() => {
+  // Функція мапінгу кольорів під кожен статус
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case "В обробці":
+        return { bg: "#fff3cd", color: "#856404", icon: "fa-clock" };
+      case "Відправлено":
+        return { bg: "#cce5ff", color: "#004085", icon: "fa-truck" };
+      case "Виконано":
+        return { bg: "#d4edda", color: "#155724", icon: "fa-check-circle" };
+      default: // "Нове"
+        return { bg: "#e2e3e5", color: "#383d41", icon: "fa-star" };
+    }
+  };
+
+  const currentStatus = attrs.status || "Нове";
+  const styles = getStatusStyles(currentStatus);
+
+  return (
+    <span style={{ 
+      padding: "6px 14px", 
+      background: styles.bg, 
+      color: styles.color, 
+      borderRadius: "20px", 
+      fontSize: "12px", 
+      fontWeight: "bold",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "5px"
+    }}>
+      <i className={`fas ${styles.icon}`}></i> {currentStatus}
+    </span>
+  );
+})()}
                     <span style={{ fontWeight: "900", fontSize: "20px" }}>{attrs.total} ₴</span>
                   </div>
 
