@@ -578,7 +578,7 @@ function App() {
     <Router>
       <div className="app">
         <Header
-          cartCount={cart.length}
+          cartCount={cart.reduce((acc, item) => acc + (item.quantity || 1), 0)}
           openCart={() => setIsCartOpen(true)}
           products={products}
           onLogoClick={() => handleSelectCategory("all")}
