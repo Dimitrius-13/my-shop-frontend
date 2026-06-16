@@ -12,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IMaskInput } from "react-imask";
 import "./App.css";
+import ProductList from "./components/ProductList";
 
 const API_URL = "https://myshop-cms.onrender.com";
 
@@ -248,6 +249,9 @@ const SkeletonLoader = () => (
 );
 
 // ГОЛОВНА СТОРІНКА (З ФІЛЬТРАМИ БРЕНДІВ)
+import React from "react";
+import ProductList from "./components/ProductList"; // Переконайся, що шлях правильний!
+
 const HomePage = ({
   products,
   addToCart,
@@ -319,92 +323,19 @@ const HomePage = ({
         </div>
       </div>
 
-      {loading ? (
-        <SkeletonLoader />
-      ) : (
-        <div className="products-grid">
-          {displayProducts.length > 0 ? (
-            displayProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="card-top">
-                  {product.isPromo && (
-                    <span className="status-badge sale">SALE</span>
-                  )}
-                </div>
-                <Link
-                  to={`/product/${product.documentId}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="img-container">
-                    <img
-                      src={
-                        product.image || "https://placehold.co/300?text=No+Img"
-                      }
-                      alt={product.name}
-                      onError={(e) => {
-                        e.target.src = "https://placehold.co/300";
-                      }}
-                    />
-                  </div>
-                  <div className="card-info">
-                    <div className="rating">
-                      <i
-                        className="fas fa-star filled"
-                        style={{ color: "#ffbf00" }}
-                      ></i>{" "}
-                      {product.rating}
-                    </div>
-                    <h3 title={product.name}>{product.name}</h3>
-                    <div className="price-block">
-                      <div className="prices">
-                        {product.oldPrice > 0 && (
-                          <span className="old-price">
-                            {product.oldPrice} ₴
-                          </span>
-                        )}
-                        <span
-                          className={`current-price ${
-                            product.oldPrice ? "red" : ""
-                          }`}
-                        >
-                          {product.price} ₴
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <button
-                  className="buy-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart(product);
-                  }}
-                >
-                  <i className="fas fa-shopping-cart"></i>
-                </button>
-              </div>
-            ))
-          ) : (
-            <div className="no-products">
-              <p>Нічого не знайдено 🕵️‍♂️</p>
-              <button
-                onClick={() => {
-                  setSelectedBrand("all");
-                  setSortOption("default");
-                }}
-                className="buy-btn-large"
-                style={{ marginTop: "20px" }}
-              >
-                Скинути фільтри
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {/* ВИКЛИК КОМПОНЕНТА СПИСКУ ТОВАРІВ ЗАМІСТЬ МОНОЛІТУ */}
+      <ProductList
+        products={displayProducts}
+        loading={loading}
+        addToCart={addToCart}
+        setSelectedBrand={setSelectedBrand}
+        setSortOption={setSortOption}
+      />
     </div>
   );
 };
 
+export default HomePage;
 const Breadcrumbs = ({ categoryName, productName }) => (
   <div className="breadcrumbs">
     <Link to="/">Головна</Link> <span className="separator">/</span>
