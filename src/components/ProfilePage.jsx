@@ -80,13 +80,19 @@ const ProfilePage = ({ user, setUser }) => {
                     style={{ margin: 0, flex: 1 }}
                   />
                   <button 
-                    onClick={handleUpdatePhone} 
-                    disabled={isUpdating || phone === user.phone}
-                    className="buy-btn"
-                    style={{ padding: "0 15px", borderRadius: "8px" }}
-                  >
-                    Зберегти
-                  </button>
+  onClick={handleUpdatePhone} 
+  disabled={isUpdating || phone === user.phone}
+  className="buy-btn-large"
+  style={{ 
+    margin: 0, 
+    padding: "0 20px", 
+    width: "auto", 
+    whiteSpace: "nowrap",
+    opacity: (isUpdating || phone === user.phone) ? 0.6 : 1 
+  }}
+>
+  Зберегти
+</button>
                 </div>
               </td>
             </tr>
