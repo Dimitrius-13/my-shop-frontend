@@ -331,7 +331,6 @@ const HomePage = ({
   );
 };
 
-export default HomePage;
 const Breadcrumbs = ({ categoryName, productName }) => (
   <div className="breadcrumbs">
     <Link to="/">Головна</Link> <span className="separator">/</span>
